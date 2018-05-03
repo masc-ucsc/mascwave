@@ -1,0 +1,25 @@
+{signal: [
+{wave: '01010101010101'}, // toggling
+{wave: '0.1.0.hl'}, // dot(.) holds a value, h/l for high and low {wave: '222xxx345.6789'}, // multi-bit, X, 345 = colors, 6789 == x {wave:''}, // blank line
+  // text
+  {wave: '2.2.2.2.2.2.2.',
+data:["abcdefg","hijk","lmnop","qrs","tuv","wx","yz"]}, {wave:''},
+  // names and clocks
+{name: "posclk",wave: 'pPp...........' }, // capital letters for arrows 
+{name: "negclk",wave: 'n.N..n........' },
+{name: "divclk", wave: 'lplpl.h.l.h.pl' },
+{wave:''},
+// fun
+{name: "Barak",wave: '01.zx=ud.23.45'},
+// gaps
+{name: "gaps",
+wave: '01|022|0|x|.22' },
+// arrows with nodes and edges
+{name: "arrows", wave: '0n0....2..x2..',
+                   node: '.a........d' },
+  {                wave: '1.0.10..x0....',
+                   node: '....b...c'   },
+  ],
+edge:['a~>b glitch',
+  'c<~>d I found the bug!',
+], }

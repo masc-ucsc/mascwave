@@ -1,0 +1,290 @@
+<html>
+<script src="default.js"></script>
+<script src="wavedrom.js"></script>
+<script src="narrow.js" type="text/javascript"></script>
+<script src="toastr.min.js"></script>
+
+
+
+
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+ 
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="index.css">
+<link href="toastr.min.css" rel="stylesheet"/>
+
+
+
+<body onload="bodyload()" style="overflow:hidden;">
+<!-- Start: Menu Bar -->
+<div style="display:table;table-layout:fixed;background-color:#dddddd;width:100%; position:static;">
+
+<!---<div class="top_menu" style="background-color: #fffff;display: inline-block;border-style: outset; ">
+	<label for="myFile" style="font-size: 30px;">New WaveJSON</label>
+	<input type="file" id="myFile" multiple size="50" onchange="upload_file()" style="display: none;"> 
+</div> -->
+<form action="#" method="post" enctype="multipart/form-data" >
+  <input type="file" name="Upload File">
+  <input type="submit" name="Submit">
+</form>
+
+<!------------File Upload for ExpressJS-------->
+
+    <form ref='uploadForm' onsubmit="submission()"
+      id='uploadForm' 
+      action='http://54.219.189.158:5901/upload' 
+      method='post' 
+      encType="multipart/form-data">
+		<input type="hidden" id= "fileName" name="fileName" value="none"/>
+        <input type="file" name="sampleFile" />
+        <input type='submit' value='Upload!' />
+    </form>
+
+<!------------------------------------------>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+var clientdata = {
+	socketid : null,
+	filename : null,
+ 	start_time : 0,
+    window_size : 0,
+	v_start_time : 0,
+    v_size : 0,
+	server_source : null
+}
+var socket;
+
+</script>
+
+<div class="wave_menu" style="display: inline-block;">
+	<button style="font-size:24px;border-style: outset;" onclick="changetime(-1)">Left <i class="fa fa-arrow-circle-left"></i></button>
+	<button style="font-size:24px;border-style: outset;" onclick="changetime(1)">Right <i class="fa fa-arrow-circle-right"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changesignal(-1)">Up <i class="fa fa-arrow-circle-up"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changesignal(1)">Down <i class="fa fa-arrow-circle-down"></i></button>
+  <button id="save_image" style="font-size:24px;border-style: outset;"> Save </button>
+</div>
+
+</div>
+
+
+
+<br>
+<!-- End: Menu Bar -->
+
+<!-- Start: Wavedrom -->
+<div id="wave_window" style="width:100%;float:left;overflow-y:scroll;height: 80%">
+<script id="demo1" type="WaveDrom">
+	{ signal: [
+  { name: "pclk", wave: 'p.......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......p......' },
+  { name: "Pclk", wave: 'P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......P.......' },
+  { name: "nclk", wave: 'n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......n.......' },
+  { name: "Nclk", wave: 'N.......' },
+  {},
+  { name: 'clk0', wave: 'phnlPHNL' },
+  { name: 'clk1', wave: 'xhlhLHl.' },
+  { name: 'clk2', wave: 'hpHplnLn' },
+  { name: 'clk3', wave: 'nhNhplPl' },
+  { name: 'clk4', wave: 'xlh.L.Hx' },
+	]}
+
+</script>
+</div>
+<div id="snackbar">Toast the id</div>
+<!-- End: Wavedrom -->
+<script>
+function dropdown() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+</script>
+    
+<script>
+	var window_size = 21, start_time=0;
+  var imoved = 0;
+  var v_size = 10;
+  var v_start_time = 0;
+  var v_moved = 0;
+	var iroot, icontent,iindex,ilane;
+  var mouse_down = 0;
+
+//upload the file
+function upload_file(){
+    var x = document.getElementById("myFile");
+    var txt = "";
+    if ('files' in x) {
+        if (x.files.length == 0) {
+            txt = "Select one or more files.";
+        } else {
+            for (var i = 0; i < x.files.length; i++) {
+                /*txt += "<br><strong>" + (i+1) + ". file</strong><br>";
+                var file = x.files[i];
+                if ('name' in file) {
+                    txt += "name: " + file.name + "<br>";
+                }
+                if ('size' in file) {
+                    txt += "size: " + file.size + " bytes <br>";
+                }*/
+                var reader = new FileReader();
+                reader.onload = function(){
+                  txt = reader.result;
+                  console.log(txt);
+                  var k =document.getElementsByTagName("script");
+                  for (var i=0; i<k.length;i++){
+                  	if(k[i].type == "WaveDrom"){
+                  		k[i].text = txt;
+                  		console.log("yes");
+                      window_size = 21; start_time=0;
+                  		WaveDrom.EditorRefresh();
+                  	}
+                  }
+              };
+                reader.readAsText(x.files[i]);
+           
+
+            }
+        }
+
+    } 
+    else {
+        if (x.value == "") {
+            txt += "Select one or more files.";
+        } else {
+            txt += "The files property is not supported by your browser!";
+            txt  += "<br>The path of the selected file: " + x.value; // If the browser does not support the files property, it will return the path of the selected file instead. 
+        }
+    }
+
+}
+
+function changetime(k){
+    imoved = 1;
+	if(k > 0){
+			start_time+= 2;
+			window_size+= 2;
+		}
+	else{
+		if(start_time > 0){
+			start_time-=2;
+			window_size-=2;
+		}
+	}
+	clientdata.start_time = start_time;
+	clientdata.window_size = window_size;
+
+	socket.emit('clientdata', clientdata);
+	WaveDrom.EditorRefresh();
+	console.log(start_time+' '+window_size);
+
+}
+
+function changesignal(k){
+    v_moved = 1;
+  if(k > 0){
+      v_start_time+= 2;
+      v_size+= 2;
+    }
+  else{
+    if(v_start_time > 0){
+      v_start_time-=2;
+      v_size-=2;
+    }
+  }
+        clientdata.v_start_time = v_start_time;
+        clientdata.v_size = v_size;
+
+        socket.emit('clientdata', clientdata);
+        WaveDrom.EditorRefresh();
+        console.log(v_start_time+' '+v_size);
+
+
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function checkCookie() {
+    var user = getCookie("filename");
+    if (user != "") {
+        alert("Welcome again " + user);
+		return true;
+    } 
+	else
+		return false;
+		/*else {
+        user = prompt("Please enter your name:", "");
+        if (user != "" && user != null) {
+            setCookie("username", user, 365);
+        }
+    }*/
+}
+
+function bodyload(){
+	socket = io();
+	socket.on('serverdata',function(data){
+		console.log(data);
+	});
+	socket.on('initdata',function(data){
+		if (data){
+			clientdata.socketid = data;
+			var x = document.getElementById("fileName");
+			x.setAttribute("value",data);
+			console.log(x.value);
+		}
+		console.log(data);
+	});
+	if(checkCookie()){
+		clientdata.filename = getCookie("filename");
+		socket.emit('requestfile', clientdata);
+	}
+	WaveDrom.ProcessAll();
+	
+}
+
+function submission(){
+	var e = document.getElementById("fileName").value;
+	alert(e);
+	setCookie("filename",e,3);
+
+}
+</script>
+
+</body>
+
+</html>

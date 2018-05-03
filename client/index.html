@@ -1,0 +1,372 @@
+<html>
+<script src="default.js"></script>
+<script src="wavedrom.js"></script>
+<script src="narrow.js" type="text/javascript"></script>
+<script src="toastr.min.js"></script>
+
+
+
+
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="jquery-linedtextarea.js"></script>
+<link href="jquery-linedtextarea.css" type="text/css" rel="stylesheet">
+ 
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="index.css">
+<link href="toastr.min.css" rel="stylesheet"/>
+
+
+
+<body onload="bodyload()" style="overflow:hidden;">
+<!-- Start: Menu Bar -->
+<div style="display:table;table-layout:fixed;background-color:#dddddd;width:100%; position:static;">
+
+<!---<div class="top_menu" style="background-color: #fffff;display: inline-block;border-style: outset; ">
+	<label for="myFile" style="font-size: 30px;">New WaveJSON</label>
+	<input type="file" id="myFile" multiple size="50" onchange="upload_file()" style="display: none;"> 
+</div> -->
+<!--
+<form action="#" method="post" enctype="multipart/form-data" >
+  <input type="file" name="Upload File">
+  <input type="submit" name="Submit">
+</form>
+-->
+
+<!------------File Upload for ExpressJS-------->
+
+    <form ref='uploadForm'
+      id='uploadForm' 
+      action='/upload' 
+      method='post' 
+      encType="multipart/form-data">
+		<input type="hidden" id= "fileName" name="fileName" value="none"/>
+        <input type="file" name="sampleFile" />
+        <input type='submit' id="file_submit" onclick="submission(event)" value='Upload!' />
+    </form>
+
+<!--------------------------------------- -->
+<script src="/socket.io/socket.io.js"></script>
+
+
+<div class="wave_menu" style="display: inline-block;">
+  <button style="font-size:24px;border-style: outset;" onclick="changetime(-2)">Left <i class="fa fa-arrow-circle-left"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changetime(2)">Right <i class="fa fa-arrow-circle-right"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changesignal(-2)">Up <i class="fa fa-arrow-circle-up"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changesignal(2)">Down <i class="fa fa-arrow-circle-down"></i></button>
+ 
+  <button id="save_image" style="font-size:24px;border-style: outset;"> Save </button>
+  <button id="zoom_in" style="font-size:24px;border-style: outset;" onclick="zoom(event)"> Zoom (+) </button>
+  <button id="zoom_out" style="font-size:24px;border-style: outset;" onclick="zoom(event)"> Zoom (-) </button>
+  <button onclick="color_tester()"> Test Color </button>
+</div>
+
+</div>
+
+
+
+<br>
+<!-- End: Menu Bar -->
+
+<!-- Start: Wavedrom -->
+<div id="wave_window" style="width:100%;float:left;overflow-y:scroll;height: 80%">
+	<div id = 'WaveDrom_Display_0' style = 'width: 50%; float:left' ></div>
+	<div id = 'WaveDrom_Form_0' style = 'width: 50%; float:right; height:100%; background:white;' >
+		<form ref='Form' id='Form' action = '/upload' method='post' encType="multipart/form-data">
+			<!--<textarea readonly style='resize:none;float:left;width:7%;height:90%;font-size:20px;line-height:30px;overflow-y:hidden;background-color:#ccc'>1&nbsp2&nbsp3&nbsp4&nbsp5&nbsp6&nbsp7&nbsp8&nbsp9&nbsp10
+			</textarea>-->
+			<textarea name = 'tight_form_text' id='tight_form_text' class="lined" rows="10" style="width:100%;-webkit-box-sizing:border-box;-moz-box-sizing: border-box;box-sizing: border-box;}"></textarea> <!--style='resize:none;float:right;width:93%;height:90%;font-size:20px;line-height:30px;overflow-y:hidden;white-space:nowrap;'--> 
+			<input type = 'hidden' id='tight_form_id' name = 'tight_form_id' value = 'none' />
+			<input type='submit' id='code_submit' onclick="submission(event)" style = 'width:100%;height:10%;' />
+		</form>
+	</div>
+	<div></div>
+	
+</div>
+<div id="snackbar">Toast the id</div>
+<!-- End: Wavedrom -->
+    
+<script>
+var clientdata = {
+	socketid : null,
+	filename : null,
+ 	start_time : 0,
+    window_size : 21,
+	v_start_time : 0,
+    v_size : 10,
+	source_size : 10,
+	server_source : {signal:[{ name: 'I-18', wave: '=...=', node: '\u0012', data: [ 'iAALU' ] }]},
+	code_text: '',
+	prev_start_time: 0,
+	prev_v_start_time: 0,
+	prev_v_size: 0,
+	prev_window_size: 0,
+	selected:{id:[]},
+	zoom: 1
+}
+var socket;
+var window_size = 21, start_time=0;
+var imoved = 0;
+var v_size = 10;
+var v_start_time = 0;
+var v_moved = 0;
+var iroot, icontent,iindex,ilane;
+var mouse_down = 0;
+var text_check = false;
+
+$(function() {
+	$(".lined").linedtextarea(
+		{selectedLine: 1}
+	);
+});
+
+
+//upload the file
+function dropdown() {
+    document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+function zoom(event){
+	if(event.target.id == "zoom_in"){
+		clientdata.zoom = 2;
+		window_size = 21;
+
+	} else if (event.target.id == "zoom_out"){
+		clientdata.zoom = 1;
+		window_size = 41;
+	}
+	clientdata.window_size = window_size;
+	socket.emit('clientdata', clientdata);
+	WaveDrom.EditorRefresh();
+}
+function upload_file(){
+    var x = document.getElementById("myFile");
+    var txt = "";
+    if ('files' in x) {
+        if (x.files.length == 0) {
+            txt = "Select one or more files.";
+        } else {
+            for (var i = 0; i < x.files.length; i++) {
+                /*txt += "<br><strong>" + (i+1) + ". file</strong><br>";
+                var file = x.files[i];
+                if ('name' in file) {
+                    txt += "name: " + file.name + "<br>";
+                }
+                if ('size' in file) {
+                    txt += "size: " + file.size + " bytes <br>";
+                }*/
+                var reader = new FileReader();
+                reader.onload = function(){
+                  txt = reader.result;
+                  console.log(txt);
+                  var k =document.getElementsByTagName("script");
+                  for (var i=0; i<k.length;i++){
+                  	if(k[i].type == "WaveDrom"){
+                  		k[i].text = txt;
+                  		console.log("yes");
+                      window_size = 21; start_time=0;
+                  		WaveDrom.EditorRefresh();
+                  	}
+                  }
+              };
+                reader.readAsText(x.files[i]);
+           
+
+            }
+        }
+
+    } 
+    else {
+        if (x.value == "") {
+            txt += "Select one or more files.";
+        } else {
+            txt += "The files property is not supported by your browser!";
+            txt  += "<br>The path of the selected file: " + x.value; // If the browser does not support the files property, it will return the path of the selected file instead. 
+        }
+    }
+
+}
+
+function changetime(k){
+    imoved = 1;
+	clientdata.prev_start_time = start_time;
+	clientdata.prev_window_size = window_size;
+	start_time+= k;
+	window_size+= k;
+	if(start_time <= 0) {
+		start_time = 0;
+		window_size = 21;
+	}
+	clientdata.start_time = start_time;
+	clientdata.window_size = window_size;
+
+	socket.emit('clientdata', clientdata);
+	WaveDrom.EditorRefresh();
+	console.log(start_time+' '+window_size);
+
+}
+
+function changesignal(k){
+    v_moved = 1;
+	clientdata.prev_v_start_time = v_start_time;
+	clientdata.prev_v_size = v_size;
+	v_start_time+= k;
+	v_size+= k;
+	if(v_start_time < 0){
+		v_start_time = 0;
+		v_size = 10;
+	}
+	if(clientdata.source_size >= v_size){
+		clientdata.v_start_time = v_start_time;
+		clientdata.v_size = v_size;
+		socket.emit('clientdata', clientdata);
+		//WaveDrom.EditorRefresh();
+	}
+
+	
+	console.log(v_start_time+' '+v_size);
+
+
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function checkCookie() {
+    var user = getCookie("filename");
+    if (user != "") {
+        alert("Welcome again. Here is the Last Wave you worked on.");
+		return true;
+    } 
+	else
+		return false;
+}
+
+function bodyload(){
+	socket = io();
+	window.addEventListener("keydown", checkKeyPressed, false);
+	
+	var el = document.getElementById("tight_form_text");
+	el.addEventListener("focusin", myFocusFunction);
+	el.addEventListener("focusout", myBlurFunction);
+
+	socket.on('serverdata',function(data){
+		clientdata = data;
+		console.log(clientdata);
+		WaveDrom.EditorRefresh();
+	});
+	socket.on('initdata',function(data){
+		if (data){
+			if(getCookie('code') == 'yes'){
+				document.getElementById("tight_form_text").value = localStorage.getItem('code');
+				clientdata.socketid = data;
+				setCookie('code','no',3);
+			}
+			var x = document.getElementById("fileName");
+			x.setAttribute("value",data);
+			var y = document.getElementById("tight_form_id");
+			y.setAttribute("value",data);
+			console.log(x.value);
+			WaveDrom.ProcessAll();
+
+		}
+		console.log(data);
+	});
+	if(checkCookie()){
+		clientdata.filename = getCookie("filename");
+		socket.emit('requestfile', clientdata);
+	}
+	
+	
+}
+
+function myFocusFunction() {
+    text_check = true;
+}
+
+function myBlurFunction() {
+    text_check = false;  
+}
+ 
+function checkKeyPressed(e) {
+	if(!text_check)
+        switch(e.keyCode) {
+        case 37:
+            // left key pressed
+			changetime(-1);
+            break;
+        case 38:
+            // up key pressed
+			changesignal(-1);
+            break;
+        case 39:
+            // right key pressed
+			changetime(1);
+            break;
+        case 40:
+            // down key pressed
+			changesignal(1);
+            break;  
+    } 
+}
+
+function submission(event){
+	var e = document.getElementById("fileName").value;
+	if(event.target.id == 'code_submit'){
+		var c = document.getElementById("tight_form_text").value;
+		clientdata.code_text = c;
+		if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) {
+			alert('Its Safari');
+		} else {
+			localStorage.setItem('code',c);
+		}
+		setCookie('code','yes',3);
+
+	}
+	setCookie("filename",e,3);
+
+}
+
+function color_tester(){
+	var a = document.getElementById("I-19_use_4_2_0");
+	a.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', 'vvv-2g');
+}
+</script>
+
+</body>
+
+</html>

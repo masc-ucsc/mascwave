@@ -1,0 +1,40 @@
+{
+  "name": "mascwave",
+  "version": "1.0.0",
+  "description": "UCSC MASC generate waveform from a WaveJSON",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm-install-all;node express_server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kabylkas/mascwave.git"
+  },
+  "keywords": [
+    "mascwave"
+  ],
+  "author": "Muhammad Zian Ilahee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kabylkas/mascwave/issues"
+  },
+  "homepage": "https://github.com/kabylkas/mascwave#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "connect": "^3.6.5",
+    "csv-string": "^3.1.2",
+    "express": "^4.16.3",
+    "express-fileupload": "^0.3.0",
+    "formidable": "^1.1.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "jquery": "^3.3.1",
+    "node-cache": "^4.1.1",
+    "parse-files": "^0.1.1",
+    "path": "^0.12.7",
+    "socket.io": "^2.1.0",
+    "tspan": "^0.2.1",
+    "wavedrom": "^1.6.2"
+  }
+}

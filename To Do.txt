@@ -1,0 +1,22 @@
+To Do
+0. Save file based on fileName - Done
+1. Open file based on fileName - Done
+2. Parse file				   - Done
+3. Eval parsed file 		   - Done
+4. Send chunk of evaled object based on request -Done
+5. Tight visualization
+	a. Edit Text Box - Done
+	b. Send code to Server - Done
+	c. Eval code - Done
+	d. Generate the eval value in waveform - Done
+6. Z-Index for navigation
+7. Keyboard Input
+	a. Navigate left right - Done
+	b. Zoom hotkey
+8. 
+9.
+10. Delete previous files
+11. File name based on socket and time
+12. Add line number to textarea - Done
+13. Align textarea line to wavelane - Done
+14. modularize tight visualization for multiple inputs - Done
