@@ -109,6 +109,7 @@ function appendSaveAsDialog (index, output) {
                         html += firstDiv.innerHTML.substring(166, firstDiv.innerHTML.indexOf('<g id="waves_0">'));
                     }
                     html = [div.innerHTML.slice(0, 166), html, div.innerHTML.slice(166)].join('');
+		    html = html.replace(/[^\x20-\x7E]/g, '');
                     svgdata = 'data:image/svg+xml;base64,' + btoa(html);
 
                     a = document.createElement('a');
