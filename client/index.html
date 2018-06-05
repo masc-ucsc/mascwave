@@ -3,10 +3,7 @@
 <script src="wavedrom.js"></script>
 <script src="narrow.js" type="text/javascript"></script>
 <script src="toastr.min.js"></script>
-
-
-
-
+<script src="html2canvas.min.js"></script>
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="jquery-linedtextarea.js"></script>
 <link href="jquery-linedtextarea.css" type="text/css" rel="stylesheet">
@@ -35,7 +32,8 @@
 -->
 
 <!------------File Upload for ExpressJS-------->
-
+<div style="display:inline-block">
+<div style="float:left">
     <form ref='uploadForm'
       id='uploadForm' 
       action='/upload' 
@@ -44,17 +42,20 @@
 		<input type="hidden" id= "fileName" name="fileName" value="none"/>
         <input type="file" name="sampleFile" />
         <input type='submit' id="file_submit" onclick="submission(event)" value='Upload!' />
-    </form>
-
+    </form></div>
+&nbsp<b>Horizontal Nav Size</b><select id="horizontal_nav_size"> <option value=0>0</option><option value=1 selected="selected">1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option></select>
+&nbsp<b>Vertical Nav Size</b><select id="vertical_nav_size"> <option value=0>0</option><option value=1 selected="selected">1</option><option value=2>2</option><option value=3>3</option><option value=4>4</option><option value=5>5</option></select>
+</div>
+<br>
 <!--------------------------------------- -->
 <script src="/socket.io/socket.io.js"></script>
 
 
 <div class="wave_menu" style="display: inline-block;">
-  <button style="font-size:24px;border-style: outset;" onclick="changetime(-2)">Left <i class="fa fa-arrow-circle-left"></i></button>
-  <button style="font-size:24px;border-style: outset;" onclick="changetime(2)">Right <i class="fa fa-arrow-circle-right"></i></button>
-  <button style="font-size:24px;border-style: outset;" onclick="changesignal(-2)">Up <i class="fa fa-arrow-circle-up"></i></button>
-  <button style="font-size:24px;border-style: outset;" onclick="changesignal(2)">Down <i class="fa fa-arrow-circle-down"></i></button>
+ <button style="font-size:24px;border-style: outset;" onclick="changetime(-1*parseInt(document.getElementById('horizontal_nav_size').value))">Left <i class="fa fa-arrow-circle-left"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changetime(1*parseInt(document.getElementById('horizontal_nav_size').value))">Right <i class="fa fa-arrow-circle-right"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changesignal(-1*parseInt(document.getElementById('vertical_nav_size').value))">Up <i class="fa fa-arrow-circle-up"></i></button>
+  <button style="font-size:24px;border-style: outset;" onclick="changesignal(1*parseInt(document.getElementById('vertical_nav_size').value))">Down <i class="fa fa-arrow-circle-down"></i></button>
  
   <button id="save_image" style="font-size:24px;border-style: outset;"> Save </button>
   <button id="zoom_in" style="font-size:24px;border-style: outset;" onclick="zoom(event)"> Zoom (+) </button>
@@ -215,9 +216,10 @@ function changetime(k){
 	clientdata.start_time = start_time;
 	clientdata.window_size = window_size;
 
-	socket.emit('clientdata', clientdata);
+	//socket.emit('clientdata', clientdata);
 	WaveDrom.EditorRefresh();
 	console.log(start_time+' '+window_size);
+	console.log(Object.keys(clientdata).length);
 
 }
 
@@ -327,19 +329,19 @@ function checkKeyPressed(e) {
         switch(e.keyCode) {
         case 37:
             // left key pressed
-			changetime(-1);
+			changetime(-1*parseInt(document.getElementById('horizontal_nav_size').value));
             break;
         case 38:
             // up key pressed
-			changesignal(-1);
+			changesignal(-1*parseInt(document.getElementById('vertical_nav_size').value));
             break;
         case 39:
             // right key pressed
-			changetime(1);
+			changetime(1*parseInt(document.getElementById('horizontal_nav_size').value));
             break;
         case 40:
             // down key pressed
-			changesignal(1);
+			changesignal(1*parseInt(document.getElementById('vertical_nav_size').value));
             break;  
     } 
 }

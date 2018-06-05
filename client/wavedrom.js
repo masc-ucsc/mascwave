@@ -48,9 +48,9 @@ function appendSaveAsDialog (index, output) {
             menu.style.left = e.x + 'px';
 
             list = document.createElement('ul');
-            /*savePng = document.createElement('li');
-            savePng.innerHTML = 'Save as PNG';
-            list.appendChild(savePng);*/
+            //savePng = document.createElement('li');
+            //savePng.innerHTML = 'Save as PNG';
+            //list.appendChild(savePng);
 
             saveSvg = document.createElement('li');
             saveSvg.innerHTML = 'Save as SVG';
@@ -64,26 +64,42 @@ function appendSaveAsDialog (index, output) {
 
             document.body.appendChild(menu);
 
-            /*savePng.addEventListener('click',
+           /* savePng.addEventListener('click',
                 function () {
                     var html, firstDiv, svgdata, img, canvas, context, pngdata, a;
-
-                    html = '';
+		    //html = document.getElementById('WaveDrom_Display_0');
+		    html = document.querySelector("svg");
+                    /*html = '';
                     if (index !== 0) {
                         firstDiv = document.getElementById(output + 0);
                         html += firstDiv.innerHTML.substring(166, firstDiv.innerHTML.indexOf('<g id="waves_0">'));
                     }
                     html = [div.innerHTML.slice(0, 166), html, div.innerHTML.slice(166)].join('');
-                    svgdata = 'data:image/svg+xml;base64,' + btoa(html);
-                    img = new Image();
-                    img.src = svgdata;
+		    html = html.replace(/[^\x20-\x7E]+/g, "");*/
+		    /*var xml =  new XMLSerializer().serializeToString(html);
+		    xml = xml.replace(/[^\x20-\x7E]+/g, "");
+                    svgdata = 'data:image/svg+xml;base64,' + btoa(xml);
+		    
+                    img = document.createElement("img");
+                    img.setAttribute('src',svgdata);
                     canvas = document.createElement('canvas');
-                    canvas.width = img.width;
-                    canvas.height = img.height;
                     context = canvas.getContext('2d');
                     context.drawImage(img, 0, 0);
-
                     pngdata = canvas.toDataURL('image/png');
+		    */
+		    /*var html2canvas = require('html2canvas');
+		    html2canvas(document.querySelector("#WaveDrom_Display_0")).then(canvas => {
+    document.body.appendChild(canvas)
+});*//*
+var element = document.getElementById("WaveDrom_Display_0");
+
+html2canvas(element).then(function(canvas) {
+    // Export the canvas to its data URI representation
+    var base64image = canvas.toDataURL("image/png");
+
+    // Open the image in a new window
+    window.open(base64image , "_blank");
+});
 
                     a = document.createElement('a');
                     a.href = pngdata;
@@ -94,8 +110,8 @@ function appendSaveAsDialog (index, output) {
                     document.body.removeEventListener('mousedown', closeMenu, false);
                 },
                 false
-            );*/
-
+            );
+*/
             saveSvg.addEventListener('click',
                 function () {
                     var html,
