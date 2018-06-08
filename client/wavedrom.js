@@ -193,7 +193,6 @@ function editorRefresh () {
 
 	
     renderWaveForm(0, clientdata.server_source, 'WaveDrom_Display_');
-
     /*
     svg = document.getElementById('svgcontent_0');
     ser = new XMLSerializer();
@@ -529,14 +528,15 @@ function insertSVGTemplate (index, parent, source, lane) {
     while (parent.childNodes.length) {
         parent.removeChild(parent.childNodes[0]);
     }
-
+/*
     for (first in waveSkin) { break; }
 	if(clientdata.zoom == 2){
     e = waveSkin.default || waveSkin[first];
 	} else {
 		e = waveSkin.narrow;
 	}
-
+*/
+    e = waveSkin.narrow;
     if (source && source.config && source.config.skin && waveSkin[source.config.skin]) {
         e = waveSkin[source.config.skin];
     }
@@ -1975,6 +1975,7 @@ function renderWaveForm (index, source, output) {
     if (source.signal) {
         insertSVGTemplate(index, document.getElementById(output + index), source, lane);
         parseConfig(source, lane);
+	//console.log(lane); //MZI-MOD
         ret = rec(source.signal, {'x':0, 'y':0, 'xmax':0, 'width':[], 'lanes':[], 'groups':[]});
         root = document.getElementById('lanes_' + index);
         groups = document.getElementById('groups_' + index);

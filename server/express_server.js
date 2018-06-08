@@ -102,10 +102,11 @@ io.on('connection',function(socket){
 
 //On client sent data
 	socket.on('clientdata', function(data){
-		console.log(data.filename+"\n"+data.socketid+": \n start time:"+data.start_time+"\n window size:"+data.window_size+ "\n element start: "+data.v_start_time+"\n element end:"+data.v_size);
-		if(k != undefined){ //Makes sure k is defined
+		console.log(data.filename+"\n"+data.socketid+": \n start time:"+data.start_time+"\n window size:"+data.window_size+ "\n element start: "+data.v_start_time+"\n element end:"+data.v_size+"\n zoom"+data.server_source.config);
+		if(k != undefined && k.signal !=undefined){ //Makes sure k is defined
 			data.server_source.signal = k.signal.slice(data.v_start_time,data.v_size+1);
 			if(debug) console.log("Source" + data.server_source);
+			console.log(data.zoom);
 		}
 		var a = 0;
 		//if(file.eva != null)
@@ -123,15 +124,15 @@ io.on('connection',function(socket){
 				//console.log("Data:\n "+data);
 				try {
 					k = eval('('+data+')');
+					userdata.source_size = k.signal.length;
+					if(debug) console.log("size: "+ userdata.source_size + "\n"+userdata);
+					userdata.server_source.signal = k.signal.slice(userdata.v_start_time,userdata.v_size+1);
+					if(debug) console.log("Chunk of data \n" + JSON.stringify(userdata.server_source.signal,null,4));
+					socket.emit('serverdata', userdata);
 				}
 				catch(err) {
 					console.log(err);
 				}
-				userdata.source_size = k.signal.length;
-				if(debug) console.log("size: "+ userdata.source_size + "\n"+userdata);
-				userdata.server_source.signal = k.signal.slice(userdata.v_start_time,userdata.v_size+1);
-				if(debug) console.log("Chunk of data \n" + JSON.stringify(userdata.server_source.signal,null,4));
-				socket.emit('serverdata', userdata);
 			}
 		});
 		}

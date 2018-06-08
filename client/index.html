@@ -60,7 +60,7 @@
   <button id="save_image" style="font-size:24px;border-style: outset;"> Save </button>
   <button id="zoom_in" style="font-size:24px;border-style: outset;" onclick="zoom(event)"> Zoom (+) </button>
   <button id="zoom_out" style="font-size:24px;border-style: outset;" onclick="zoom(event)"> Zoom (-) </button>
-  <button onclick="color_tester()"> Test Color </button>
+  <button id="zoom_reset" style="font-size:24px;border-style: outset;" onclick="zoom(event)"> Zoom Reset </button>
 </div>
 
 </div>
@@ -93,11 +93,11 @@ var clientdata = {
 	socketid : null,
 	filename : null,
  	start_time : 0,
-    window_size : 21,
+    window_size : 81,
 	v_start_time : 0,
     v_size : 10,
 	source_size : 10,
-	server_source : {signal:[{ name: 'I-18', wave: '=...=', node: '\u0012', data: [ 'iAALU' ] }]},
+	server_source : {signal:[{ name: 'I-18', wave: '=...=', node: '\u0012', data: [ 'iAALU' ] }],config : { hscale : 1 }},
 	code_text: '',
 	prev_start_time: 0,
 	prev_v_start_time: 0,
@@ -107,7 +107,7 @@ var clientdata = {
 	zoom: 1
 }
 var socket;
-var window_size = 21, start_time=0;
+var window_size = 81, start_time=0;
 var imoved = 0;
 var v_size = 10;
 var v_start_time = 0;
@@ -144,14 +144,27 @@ window.onclick = function(event) {
 }
 function zoom(event){
 	if(event.target.id == "zoom_in"){
-		clientdata.zoom = 2;
-		window_size = 21;
-
+		if (clientdata.zoom >= 5){
+			clientdata.zoom = 5;
+			clientdata.window_size = 41;
+		} else {
+			clientdata.zoom = clientdata.zoom + 1;
+			clientdata.window_size = clientdata.window_size - 10;
+		}
 	} else if (event.target.id == "zoom_out"){
+		if (clientdata.zoom <= 1){
+			clientdata.zoom = 1;
+			clientdata.window_size = 81;
+		} else {
+			clientdata.zoom = clientdata.zoom - 1;
+			clientdata.window_size = clientdata.window_size + 10;
+		}
+	} else if (event.target.id== "zoom_reset"){
 		clientdata.zoom = 1;
-		window_size = 41;
+		clientdata.window_size = 81;
 	}
-	clientdata.window_size = window_size;
+	clientdata.server_source.config.hscale = clientdata.zoom;
+	window_size =clientdata.window_size;
 	socket.emit('clientdata', clientdata);
 	WaveDrom.EditorRefresh();
 }
@@ -180,7 +193,7 @@ function upload_file(){
                   	if(k[i].type == "WaveDrom"){
                   		k[i].text = txt;
                   		console.log("yes");
-                      window_size = 21; start_time=0;
+                      window_size = 41; start_time=0;
                   		WaveDrom.EditorRefresh();
                   	}
                   }
@@ -207,11 +220,11 @@ function changetime(k){
     imoved = 1;
 	clientdata.prev_start_time = start_time;
 	clientdata.prev_window_size = window_size;
-	start_time+= k;
 	window_size+= k;
+	start_time = window_size - (81-(clientdata.zoom-1)*10);
 	if(start_time <= 0) {
 		start_time = 0;
-		window_size = 21;
+		window_size = 81-(clientdata.zoom-1)*10;
 	}
 	clientdata.start_time = start_time;
 	clientdata.window_size = window_size;
