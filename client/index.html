@@ -169,6 +169,7 @@ function zoom(event){
 	WaveDrom.EditorRefresh();
 }
 function upload_file(){
+    setCookie('code_flag','no',3);
     var x = document.getElementById("myFile");
     var txt = "";
     if ('files' in x) {
@@ -264,11 +265,15 @@ function setCookie(cname, cvalue, exdays) {
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    localStorage.setItem(cname,cvalue);
 }
 
 function getCookie(cname) {
     var name = cname + "=";
     var ca = document.cookie.split(';');
+    if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1){
+	return localStorage.getItem(cname);
+    }
     for(var i = 0; i < ca.length; i++) {
         var c = ca[i];
         while (c.charAt(0) == ' ') {
@@ -306,10 +311,10 @@ function bodyload(){
 	});
 	socket.on('initdata',function(data){
 		if (data){
-			if(getCookie('code') == 'yes'){
-				document.getElementById("tight_form_text").value = localStorage.getItem('code');
-				clientdata.socketid = data;
-				setCookie('code','no',3);
+			if(getCookie('code_flag') == 'yes'){
+					document.getElementById("tight_form_text").value = localStorage.getItem('code');
+					clientdata.socketid = data;
+					//setCookie('code','no',3);
 			}
 			var x = document.getElementById("fileName");
 			x.setAttribute("value",data);
@@ -360,16 +365,13 @@ function checkKeyPressed(e) {
 }
 
 function submission(event){
+	setCookie('code_flag','no',3);
 	var e = document.getElementById("fileName").value;
 	if(event.target.id == 'code_submit'){
 		var c = document.getElementById("tight_form_text").value;
 		clientdata.code_text = c;
-		if (navigator.userAgent.indexOf('Safari') != -1 && navigator.userAgent.indexOf('Chrome') == -1) {
-			alert('Its Safari');
-		} else {
-			localStorage.setItem('code',c);
-		}
-		setCookie('code','yes',3);
+		localStorage.setItem('code',c);
+		setCookie('code_flag','yes',3);
 
 	}
 	setCookie("filename",e,3);
