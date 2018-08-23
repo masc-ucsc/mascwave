@@ -4,9 +4,6 @@ Edit "name-suggestions.txt" file to suggest some names for this project
 This is the git repository for a modified wavedrom for UCSC MASC group.
 The goal of this repo is to create an online time diagram like gtk-wave.
 
-URL:  http://mascwave.tk
-      http://mascwave.cf
-
 Commit History:
 
 Date: Sep 10, 2017
